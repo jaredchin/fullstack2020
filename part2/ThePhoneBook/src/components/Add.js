@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import personServices from '../services/Persons'
 
 const Add = (props) => {
 
@@ -26,13 +27,45 @@ const Add = (props) => {
     //console.log(persons.indexOf(nameObject))
 
     if (props.persons.filter(person => person.name === namePhoneObject.name).length > 0){
-      alert(`${newName} is already added to phonebook`)
+      const update_id = props.persons.filter(person => person.name === namePhoneObject.name)[0].id
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        personServices
+        .update_person(update_id, namePhoneObject)
+          .then(response => response.data)
+          .then(returnedPerson => {
+            props.setPersons(props.persons.map(person => person.name === newName ? returnedPerson : person))
+            props.setNoticeMessage(`Updated ${newName}`)
+            setTimeout(() => {
+              props.setNoticeMessage('')
+            }, 5000)
+          })
+          .catch(error => {
+            props.setErrorMessage(`Information of ${newName} has already been removed from server`)
+            setTimeout(() => {
+              props.setErrorMessage('')
+            }, 5000)
+          })
+      }
       setNewName('')
-    } else if (props.persons.filter(person => person.number === namePhoneObject.number).length > 0) {
-      alert(`${newName} is already added to phonebook`)
       setNewPhone('')
     } else {
-      props.setPersons(props.persons.concat(namePhoneObject))
+      //props.setPersons(props.persons.concat(namePhoneObject))
+      personServices
+        .add_person(namePhoneObject)
+        .then(response => response.data)
+        .then(returnedPerson => {
+          props.setNoticeMessage(`Added ${newName}`)
+          props.setPersons(props.persons.concat(namePhoneObject))
+          setTimeout(() => {
+            props.setNoticeMessage('')
+          }, 5000)
+        })
+        .catch(error => {
+          props.setErrorMessage(`${newName} add failed`)
+          setTimeout(() => {
+            props.setErrorMessage('')
+          }, 5000)
+        })
       setNewName('')
       setNewPhone('')
     }
