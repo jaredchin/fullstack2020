@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+    "title": "The third node blog",
+    "author": "ZdChin",
+    "url": "http://blog.zdchin.top",
+    "likes": 30000000
+}
